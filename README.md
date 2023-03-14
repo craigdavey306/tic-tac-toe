@@ -1,1 +1,3 @@
-# tic-tac-toe
+# Tic-Tac-Toe
+
+Tic-Tac-Toe game written in ReactJS.
