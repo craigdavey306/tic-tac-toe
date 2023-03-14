@@ -1,0 +1,11 @@
+.board-row {
+  display: table;
+  clear: both;
+  content: '';
+  height: 10vh;
+}
+
+.status {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}

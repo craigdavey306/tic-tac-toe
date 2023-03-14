@@ -1,0 +1,11 @@
+.button-default {
+  background-color: white;
+  border: none;
+  color: black;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1rem;
+  margin: 10px 2px;
+  padding: 16px;
+}
