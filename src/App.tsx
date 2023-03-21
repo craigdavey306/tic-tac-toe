@@ -1,66 +1,52 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
-import Board from './components/Board';
-import { Mark } from './models/square';
+
+import Board from './components/ui/Board';
+import { Piece } from './models/piece';
 import SquareModel from './models/square';
-import RadioButton from './components/RadioButton';
-import Button from './components/Button';
+import RadioButton from './components/ui/RadioButton';
+import Button from './components/ui/Button';
 
-const WIN_POSITIONS = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
-
-type SinglePlayerMode = boolean;
+import {
+  calcStatusText,
+  calculateGameOver,
+  calculateWinner,
+  findBestMove,
+  playerPiece,
+} from './utils';
 
 function App() {
   const initializeSquares = () => {
-    return Array<SquareModel>(9).fill({ mark: null });
+    return Array<SquareModel>(9)
+      .fill({ mark: null })
+      .map((square) => ({ ...square }));
   };
 
   const [squares, setGameSquares] = useState(initializeSquares());
   const [currentMove, setCurrentMove] = useState<number>(0);
-  const [singlePlayerMode, setSinglePlayerMode] =
-    useState<SinglePlayerMode>(false);
+  const [players, setPlayers] = useState<[Piece, Piece]>(['X', 'O']);
+  const [singlePlayerMode, setSinglePlayerMode] = useState<boolean>(false);
 
-  const xIsNext = currentMove % 2 === 0;
+  const calculatePlayFromMove = playerPiece(players);
 
-  const mark = xIsNext ? 'X' : 'O';
+  const currentPlayer = calculatePlayFromMove(currentMove);
 
-  const calculateWinner = (squares: SquareModel[]): Mark => {
-    for (const [a, b, c] of WIN_POSITIONS) {
-      if (
-        squares[a].mark === squares[b].mark &&
-        squares[a].mark === squares[c].mark
-      ) {
-        return squares[a].mark;
-      }
-    }
-    return null;
-  };
-
-  const calculateGameOver = (squares: SquareModel[]): boolean => {
-    return squares.filter((square) => !square.mark).length === 0;
-  };
-
-  let status;
   const winner = calculateWinner(squares);
   const isOver = calculateGameOver(squares);
+  const status = calcStatusText(winner, isOver, currentPlayer);
 
-  if (winner) {
-    status = `Winner is ${winner}`;
-  } else if (isOver) {
-    status = 'Game ended in a draw!';
-  } else {
-    status = `Current player: ${mark}`;
-  }
+  useEffect(() => {
+    if (!winner && !isOver && singlePlayerMode && currentPlayer == 'O') {
+      const bestMove = findBestMove(squares, players, currentMove);
+      handleSquareClick(bestMove);
+    }
+  }, [currentMove]);
 
+  /*
+   * Marks a square as 'X' or 'O' depending on the current player.
+   * Squares are not updated if it has already been marked, there
+   * is a winner, or the game ends in a draw.
+   */
   const handleSquareClick = (id: number) => {
     if (winner || isOver || squares[id].mark) {
       return;
@@ -70,7 +56,7 @@ function App() {
 
     const updatedSquares: SquareModel[] = squares.map((square, index) => {
       if (id === index) {
-        return { mark };
+        return { mark: currentPlayer };
       }
       return square;
     });
@@ -78,10 +64,16 @@ function App() {
     setGameSquares(updatedSquares);
   };
 
+  /*
+   * Logic to set the game to one or two player mode.
+   */
   const handleSinglePlayerClick = () => {
     setSinglePlayerMode(!singlePlayerMode);
   };
 
+  /*
+   * Logic to reset the game and associated state.
+   */
   const handleResetClick = () => {
     setCurrentMove(0);
     setSinglePlayerMode(singlePlayerMode);
@@ -99,7 +91,7 @@ function App() {
       </div>
       <div className="menu-options">
         <div>
-          {/* <div>
+          <div>
             <RadioButton
               label="1 player"
               value={singlePlayerMode}
@@ -112,7 +104,7 @@ function App() {
               onChange={handleSinglePlayerClick}
               disabled={currentMove > 0}
             />
-          </div> */}
+          </div>
           <Button value="Reset" onClickHandler={handleResetClick} />
         </div>
       </div>

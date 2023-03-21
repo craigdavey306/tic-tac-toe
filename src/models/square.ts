@@ -1,5 +1,5 @@
-export type Mark = 'X' | 'O' | null;
+import { Piece } from './piece';
 
 export default interface SquareModel {
-  mark: Mark;
+  mark: Piece;
 }
