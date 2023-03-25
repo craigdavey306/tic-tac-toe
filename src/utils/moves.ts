@@ -1,126 +1,103 @@
-import SquareModel from '../models/square';
+import BoardSquare from '../models/square';
 import { Piece } from '../models/piece';
-import { Score } from '../models/score';
+import { calculateWinner } from './index';
 
-import { calculateGameOver, calculateWinner } from './gameOver';
-import { aiPlayer, humanPlayer } from '../models/constants';
+import { AI_PLAYER, HUMAN_PLAYER } from '../models/constants';
 
-/*
- * Function returning a function using closure for the players tuple.
- */
-export function playerPiece(players: readonly [Piece, Piece]) {
-  return (currentMove: number) => players[currentMove % 2];
+interface MoveScore {
+  score: number;
+  index?: number;
+}
+
+/* Makes and returns a copy of the board to keep the original in tact. */
+function copyBoard(board: BoardSquare[]): BoardSquare[] {
+  return board.map((square) => ({ ...square }));
 }
 
 /*
  * Determines the empty squares on the board, and returns
  * an array of the empty squares indices.
  */
-function emptySquares(board: SquareModel[]): number[] {
-  const availableMoves: number[] = [];
+function emptySquares(board: BoardSquare[]): number[] {
+  const availableSquares: number[] = [];
   board.forEach((square, index) => {
-    if (!square.mark) {
-      availableMoves.push(index);
+    if (!square.player) {
+      availableSquares.push(index);
     }
   });
 
-  return availableMoves;
+  return availableSquares;
 }
 
-/* Makes and returns a copy of the board. */
-function copyBoard(board: SquareModel[]): SquareModel[] {
-  return board.map((square) => ({ ...square }));
-}
+/* Recursive function to determine the best move for the computer player. */
+function minimax(board: BoardSquare[], currentPlayer: Piece): MoveScore {
+  const availSquares = emptySquares(board);
 
-/* Makes a copy of the board, places a piece on the board, and returns
- * the updated board.
- */
-function move(
-  board: SquareModel[],
-  location: number,
-  player: Piece
-): SquareModel[] {
-  const newBoard = copyBoard(board);
-  newBoard[location].mark = player;
-  return newBoard;
-}
-
-/*
- * Minimax logic for calculating the best move based.
- */
-function minimax(
-  board: SquareModel[],
-  maximizing: boolean,
-  currentMove: number,
-  calcPlayerFromMove: (arg: number) => Piece
-): Score {
-  const winner = calculateWinner(board);
-  const isDraw = calculateGameOver(board);
-  const availableMoves = emptySquares(board);
-  if (winner || isDraw || availableMoves.length === 0) {
-    if (winner === humanPlayer) {
-      return { score: -1, index: 0 };
-    } else if (winner === aiPlayer) {
-      return { score: 1, index: 0 };
-    } else {
-      return { score: 0, index: 0 };
-    }
+  // Base case - Check to see if there is a winner, or if there are no available squares.
+  if (isWinner(board, AI_PLAYER)) {
+    return { score: -1 };
+  } else if (isWinner(board, HUMAN_PLAYER)) {
+    return { score: 1 };
+  } else if (availSquares.length === 0) {
+    return { score: 0 };
   }
 
-  const moves: Score[] = [];
+  const moves: MoveScore[] = [];
 
-  for (let availIndex = 0; availIndex < availableMoves.length; availIndex++) {
-    const moveIndex = availableMoves[availIndex];
-    const newBoard = move(
-      board,
-      moveIndex,
-      calcPlayerFromMove(currentMove + moveIndex)
-    );
-    const result = minimax(
-      newBoard,
-      !maximizing,
-      currentMove + moveIndex,
-      calcPlayerFromMove
-    );
-    moves.push({ index: moveIndex, score: result.score });
+  // Try moving to the different available spaces.
+  for (let square of availSquares) {
+    const sqPlayer = board[square].player;
+    board[square].player = currentPlayer;
+
+    const move = minimax(board, nextPlayer(currentPlayer));
+
+    board[square].player = sqPlayer;
+    moves.push({ score: move.score, index: move.index ?? square });
   }
 
-  let bestScore = maximizing
-    ? Number.NEGATIVE_INFINITY
-    : Number.POSITIVE_INFINITY;
-  let bestMove = -1;
+  let bestMove = 0;
 
-  if (maximizing) {
+  if (currentPlayer === AI_PLAYER) {
+    let bestScore = Number.NEGATIVE_INFINITY;
     for (let i = 0; i < moves.length; i++) {
       if (moves[i].score > bestScore) {
         bestScore = moves[i].score;
-        bestMove = moves[i].index;
+        bestMove = i;
       }
     }
   } else {
+    let bestScore = Number.POSITIVE_INFINITY;
     for (let i = 0; i < moves.length; i++) {
       if (moves[i].score < bestScore) {
         bestScore = moves[i].score;
-        bestMove = moves[i].index;
+        bestMove = i;
       }
     }
   }
 
-  return { index: bestMove, score: bestScore };
+  return moves[bestMove];
 }
 
-/*
- * Main entry point to call the minimax logic and return the best location.
- */
-
-export function findBestMove(
-  board: SquareModel[],
-  players: readonly [Piece, Piece],
-  currentMove: number
-): number {
+/* Calls the minimax function to find the best possible move. */
+export function findBestMove(board: BoardSquare[], player: Piece): number {
   const newBoard = copyBoard(board);
-  const calcPlayerFromMove = playerPiece(players);
 
-  const bestMove = minimax(newBoard, true, currentMove, calcPlayerFromMove);
+  const bestMove = minimax(newBoard, player);
+
+  if (!bestMove.index && bestMove.index !== 0) {
+    throw Error('Invalid best move index returned from minimax function.');
+  }
+
   return bestMove.index;
+}
+
+/* Determine the next player based on the current player value. */
+export function nextPlayer(player: Piece): Piece {
+  return player === 'X' ? 'O' : 'X';
+}
+
+/* Determines if the player won the game. */
+export function isWinner(board: BoardSquare[], player: Piece): boolean {
+  const winner = calculateWinner(board);
+  return player === winner;
 }

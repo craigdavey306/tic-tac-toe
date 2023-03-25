@@ -13,5 +13,5 @@ export const WIN_POSITIONS = [
 
 export const BOARD_SIZE = 9;
 
-export const aiPlayer: Piece = 'O';
-export const humanPlayer: Piece = 'X';
+export const AI_PLAYER: Piece = 'O';
+export const HUMAN_PLAYER: Piece = 'X';

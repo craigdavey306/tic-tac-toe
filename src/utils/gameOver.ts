@@ -1,20 +1,20 @@
-import SquareModel from '../models/square';
-import { Piece } from '../models/piece';
-
 import { WIN_POSITIONS } from '../models/constants';
+import BoardSquare from '../models/square';
 
-export function calculateWinner(squares: SquareModel[]): Piece {
+export function calculateWinner(squares: BoardSquare[]) {
   for (const [a, b, c] of WIN_POSITIONS) {
     if (
-      squares[a].mark === squares[b].mark &&
-      squares[a].mark === squares[c].mark
+      squares[a].player === squares[b].player &&
+      squares[a].player === squares[c].player
     ) {
-      return squares[a].mark;
+      if (squares[a].player) {
+        return squares[a].player;
+      }
     }
   }
   return null;
 }
 
-export function calculateGameOver(squares: SquareModel[]): boolean {
-  return squares.filter((square) => !square.mark).length === 0;
+export function calculateGameOver(squares: BoardSquare[]): boolean {
+  return squares.filter((square) => !square.player).length === 0;
 }

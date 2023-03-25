@@ -1,5 +1,5 @@
 import { Piece } from './piece';
 
-export default interface SquareModel {
-  mark: Piece;
+export default interface BoardSquare {
+  player: Piece | null;
 }

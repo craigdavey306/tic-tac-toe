@@ -2,90 +2,93 @@ import { useEffect, useState } from 'react';
 import './App.css';
 
 import Board from './components/ui/Board';
-import { Piece } from './models/piece';
-import SquareModel from './models/square';
 import RadioButton from './components/ui/RadioButton';
 import Button from './components/ui/Button';
 
-import {
-  calcStatusText,
-  calculateGameOver,
-  calculateWinner,
-  findBestMove,
-  playerPiece,
-} from './utils';
+import BoardSquare from './models/square';
+import { Piece } from './models/piece';
+import { BOARD_SIZE, AI_PLAYER } from './models/constants';
+import { calculateGameOver, calculateWinner, calcStatusText } from './utils';
+import { findBestMove, nextPlayer } from './utils/moves';
+
+type GameMode = 'single' | 'multiple';
 
 function App() {
-  const initializeSquares = () => {
-    return Array<SquareModel>(9)
-      .fill({ mark: null })
-      .map((square) => ({ ...square }));
-  };
+  const [gameBoard, setGameBoard] = useState<BoardSquare[]>(initializeBoard());
+  const [currentPlayer, setCurrentPlayer] = useState<Piece>('X');
+  const [gameMode, setGameMode] = useState<GameMode>('multiple');
+  const [gameInProgress, setGameInProgress] = useState<boolean>(false);
 
-  const [squares, setGameSquares] = useState(initializeSquares());
-  const [currentMove, setCurrentMove] = useState<number>(0);
-  const [players, setPlayers] = useState<[Piece, Piece]>(['X', 'O']);
-  const [singlePlayerMode, setSinglePlayerMode] = useState<boolean>(false);
-
-  const calculatePlayFromMove = playerPiece(players);
-
-  const currentPlayer = calculatePlayFromMove(currentMove);
-
-  const winner = calculateWinner(squares);
-  const isOver = calculateGameOver(squares);
+  const winner = calculateWinner(gameBoard);
+  const isOver = calculateGameOver(gameBoard);
   const status = calcStatusText(winner, isOver, currentPlayer);
 
   useEffect(() => {
-    if (!winner && !isOver && singlePlayerMode && currentPlayer == 'O') {
-      const bestMove = findBestMove(squares, players, currentMove);
+    if (
+      !calculateWinner(gameBoard) &&
+      !isOver &&
+      gameMode === 'single' &&
+      currentPlayer === AI_PLAYER
+    ) {
+      const bestMove = findBestMove(gameBoard, currentPlayer);
       handleSquareClick(bestMove);
     }
-  }, [currentMove]);
+  }, [currentPlayer]);
 
-  /*
-   * Marks a square as 'X' or 'O' depending on the current player.
-   * Squares are not updated if it has already been marked, there
-   * is a winner, or the game ends in a draw.
-   */
-  const handleSquareClick = (id: number) => {
-    if (winner || isOver || squares[id].mark) {
+  function initializeBoard() {
+    return Array<BoardSquare>(BOARD_SIZE)
+      .fill({ player: null })
+      .map((square) => ({ ...square }));
+  }
+
+  function changePlayer(player: Piece): void {
+    const next = nextPlayer(player);
+    setCurrentPlayer(next);
+  }
+
+  // Component attribute funtions listed below
+
+  function handleSquareClick(squareId: number): void {
+    if (gameBoard[squareId].player || winner || isOver) {
       return;
     }
 
-    setCurrentMove(currentMove + 1);
+    if (!gameInProgress) {
+      setGameInProgress(true);
+    }
 
-    const updatedSquares: SquareModel[] = squares.map((square, index) => {
-      if (id === index) {
-        return { mark: currentPlayer };
+    changePlayer(currentPlayer);
+
+    const updatedBoard: BoardSquare[] = gameBoard.map((square, index) => {
+      if (squareId === index) {
+        return { player: currentPlayer };
       }
       return square;
     });
 
-    setGameSquares(updatedSquares);
-  };
+    setGameBoard(updatedBoard);
+  }
 
-  /*
-   * Logic to set the game to one or two player mode.
-   */
-  const handleSinglePlayerClick = () => {
-    setSinglePlayerMode(!singlePlayerMode);
-  };
+  function handleGameModeClick() {
+    const newMode = gameMode === 'multiple' ? 'single' : 'multiple';
+    setGameMode(newMode);
+  }
 
   /*
    * Logic to reset the game and associated state.
    */
-  const handleResetClick = () => {
-    setCurrentMove(0);
-    setSinglePlayerMode(singlePlayerMode);
-    setGameSquares(initializeSquares());
-  };
+  function handleResetClick() {
+    setGameBoard(initializeBoard());
+    setGameInProgress(false);
+    setCurrentPlayer('X');
+  }
 
   return (
     <>
       <div className="App">
         <Board
           status={status}
-          squares={squares}
+          squares={gameBoard}
           onClickHandler={handleSquareClick}
         />
       </div>
@@ -94,15 +97,15 @@ function App() {
           <div>
             <RadioButton
               label="1 player"
-              value={singlePlayerMode}
-              onChange={handleSinglePlayerClick}
-              disabled={currentMove > 0}
+              value={gameMode === 'single'}
+              onChange={handleGameModeClick}
+              disabled={gameInProgress}
             />
             <RadioButton
               label="2 players"
-              value={!singlePlayerMode}
-              onChange={handleSinglePlayerClick}
-              disabled={currentMove > 0}
+              value={gameMode === 'multiple'}
+              onChange={handleGameModeClick}
+              disabled={gameInProgress}
             />
           </div>
           <Button value="Reset" onClickHandler={handleResetClick} />
