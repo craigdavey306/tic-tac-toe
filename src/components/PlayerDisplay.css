@@ -1,0 +1,30 @@
+.player-display-container {
+  width: 100%;
+}
+
+.player-display-container__player-cell {
+  width: 50%;
+  border: 1px solid black;
+  border-radius: 8px;
+  background-color: #3085c3;
+  color: #fff;
+}
+
+.player-display-container__score {
+  float: right;
+  margin: 5px;
+  padding: 5px;
+  font-size: 1.5rem;
+}
+
+.player-display-container__mark {
+  float: left;
+  margin: 5px;
+  padding: 5px;
+  font-size: 1.5rem;
+}
+
+.active {
+  text-decoration: underline #f4e869;
+  text-decoration-thickness: 0.5rem;
+}

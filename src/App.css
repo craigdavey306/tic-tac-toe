@@ -1,0 +1,15 @@
+#root {
+  max-width: 90%;
+  margin: auto;
+  display: flex;
+  padding: 2rem;
+  text-align: center;
+  justify-content: center;
+}
+
+.gameboard__container {
+  display: table;
+  padding: 2rem;
+  width: 100%;
+  height: 100%;
+}

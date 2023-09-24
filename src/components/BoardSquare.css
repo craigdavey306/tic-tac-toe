@@ -1,0 +1,25 @@
+.board-square {
+  background-color: #fff;
+  color: #3085c3;
+  height: 10rem;
+  width: 15rem;
+  float: left;
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+button {
+  border: 1px solid #beb9b9;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: #213555;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}

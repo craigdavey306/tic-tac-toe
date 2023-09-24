@@ -1,0 +1,16 @@
+.main-container {
+  width: 100%;
+  height: 50%;
+}
+
+#winner-text {
+  color: #3085c3;
+  height: 100%;
+  width: 45rem;
+  margin: auto;
+  float: left;
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 600;
+  font-family: inherit;
+}
