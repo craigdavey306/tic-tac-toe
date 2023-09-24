@@ -1,8 +1,8 @@
 .board-square {
   background-color: #fff;
   color: #3085c3;
-  height: 10rem;
-  width: 15rem;
+  height: 100px;
+  width: 100px;
   float: left;
   text-align: center;
   font-size: 3rem;

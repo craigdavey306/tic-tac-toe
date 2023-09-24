@@ -59,10 +59,8 @@ const GameBoard = () => {
         {generateBoardSquaresRow([6, 7, 8])}
       </div>
 
-      {winner && <GameOverDisplay message={`${winner} is the winner!`} />}
-      {!winner && gameOver && (
-        <GameOverDisplay message={'Game finished in a tie!'} />
-      )}
+      {winner && <GameOverDisplay message={`${winner} won!`} />}
+      {!winner && gameOver && <GameOverDisplay message={'Tied game!'} />}
       <div className="main-container__row">
         {gameOver && <ResetButton handleOnClick={handleResetGameOnClick} />}
       </div>
