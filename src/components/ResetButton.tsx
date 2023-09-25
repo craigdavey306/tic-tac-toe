@@ -7,7 +7,7 @@ type ResetButtonProps = {
 
 const ResetButton: FC<ResetButtonProps> = ({ handleOnClick }) => {
   return (
-    <button className="reset-button" onClick={handleOnClick}>
+    <button id="reset-button" className="reset-button" onClick={handleOnClick}>
       Play Again
     </button>
   );

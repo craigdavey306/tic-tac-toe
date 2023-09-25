@@ -37,6 +37,8 @@ const GameBoard = () => {
   function generateBoardSquaresRow(indexes: number[]) {
     return indexes.map((index) => (
       <BoardSquare
+        key={index}
+        id={`square-${index}`}
         value={gameSquares[index]}
         handleOnClick={handleSquareOnClick.bind(null, index)}
       />

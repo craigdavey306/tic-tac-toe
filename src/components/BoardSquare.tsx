@@ -2,13 +2,23 @@ import './BoardSquare.css';
 import { Player } from '../models';
 
 type BoardSquareProps = {
+  id: string;
   value: Player | null;
   handleOnClick?: () => void;
 };
 
-const BoardSquare: React.FC<BoardSquareProps> = ({ value, handleOnClick }) => {
+const BoardSquare: React.FC<BoardSquareProps> = ({
+  value,
+  handleOnClick,
+  id,
+}) => {
   return (
-    <button className="board-square" disabled={!!value} onClick={handleOnClick}>
+    <button
+      id={id}
+      className="board-square"
+      disabled={!!value}
+      onClick={handleOnClick}
+    >
       {value}
     </button>
   );
