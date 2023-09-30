@@ -28,4 +28,5 @@
   text-decoration: underline #f4e869;
   text-decoration-thickness: 8px;
   text-decoration-thickness: 0.5rem;
+  -webkit-text-decoration: underline #f4e869;
 }
