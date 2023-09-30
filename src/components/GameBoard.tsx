@@ -8,6 +8,8 @@ import ResetButton from './ResetButton';
 import PlayerDisplay from './PlayerDisplay';
 import GameOverDisplay from './GameOverDisplay';
 
+const BOARD_INDEXES = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
 const GameBoard = () => {
   const dispatch = useDispatch();
   const gameSquares = useSelector<GameState, Array<Player | null>>(
@@ -51,15 +53,7 @@ const GameBoard = () => {
         <PlayerDisplay stats={playerStats} currentPlayer={currentPlayer} />
       </div>
 
-      <div className="main-container__row">
-        {generateBoardSquaresRow([0, 1, 2])}
-      </div>
-      <div className="main-container__row">
-        {generateBoardSquaresRow([3, 4, 5])}
-      </div>
-      <div className="main-container__row">
-        {generateBoardSquaresRow([6, 7, 8])}
-      </div>
+      <div className="board">{generateBoardSquaresRow(BOARD_INDEXES)}</div>
 
       {winner && <GameOverDisplay message={`${winner} won!`} />}
       {!winner && gameOver && <GameOverDisplay message={'Tied game!'} />}

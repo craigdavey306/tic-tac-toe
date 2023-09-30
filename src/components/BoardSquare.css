@@ -1,11 +1,9 @@
 .board-square {
-  background-color: #fff;
+  background: #fff;
   color: #3085c3;
   height: 100px;
-  width: 100px;
-  float: left;
-  text-align: center;
-  align-items: center;
+  width: 50px;
+  flex: 1 0 33%;
   font-size: 2rem;
   font-weight: 600;
   font-family: inherit;
